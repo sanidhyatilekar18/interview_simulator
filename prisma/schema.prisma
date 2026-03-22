@@ -1,0 +1,133 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  emailVerified DateTime?
+  password      String?
+  createdAt     DateTime  @default(now())
+
+  sessions      InterviewSession[]
+  weakTopics    WeakTopic[]
+  accounts      Account[]
+  authSessions  Session[]
+}
+
+model InterviewSession {
+  id          String   @id @default(cuid())
+  role        String
+  difficulty  String
+topic String @default("general")
+  startedAt   DateTime @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  questions Question[]
+  score     Score?
+    @@index([userId])
+
+}
+
+model Question {
+  id          String @id @default(cuid())
+  content     String
+  topic       String
+  difficulty  String
+
+  sessionId String
+  session   InterviewSession @relation(fields: [sessionId], references: [id])
+
+  answer Answer?
+}
+
+model Answer {
+  id        String @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  questionId String @unique
+  question   Question @relation(fields: [questionId], references: [id])
+
+  evaluation Evaluation?
+}
+
+model Evaluation {
+  id          String @id @default(cuid())
+
+  correctness Float
+  clarity     Float
+  depth       Float
+
+  feedback    String
+  idealAnswer String
+
+  answerId String @unique
+  answer   Answer @relation(fields: [answerId], references: [id])
+}
+
+model Score {
+  id String @id @default(cuid())
+
+  totalScore Float
+  accuracy   Float
+
+  sessionId String @unique
+  session   InterviewSession @relation(fields: [sessionId], references: [id])
+}
+
+model WeakTopic {
+  id String @id @default(cuid())
+
+  topic     String
+  frequency Int @default(1)
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+    @@unique([userId, topic]) 
+}
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
