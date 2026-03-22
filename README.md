@@ -8,7 +8,7 @@ AI-Powered Interview Simulator is a full-stack AI-powered mock interview platfor
 
 ## 🌐 Live Demo
 
-🔗 [intervue.vercel.app](https://intervue.vercel.app)
+🔗 [[interview_simulator.vercel.a(https://interview-simulator-ibou.vercel.app/))](https://interview-simulator-ibou.vercel.app/)
 
 ---
 
